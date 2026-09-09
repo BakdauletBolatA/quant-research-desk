@@ -54,14 +54,19 @@ portfolio:
   long_only: true
   max_weight: 0.25
   min_weight: 0.0
-  risk_aversion: 3.0
+  # Risk aversion for the Black-Litterman equilibrium. Left null it is derived
+  # from the data as delta = ERP / market variance, so the prior reproduces the
+  # stated equity risk premium instead of whatever a textbook default implies.
+  risk_aversion: null
   black_litterman:
     tau: 0.05
-    # Analyst views, expressed as annualised excess return, absolute or relative.
+    # Views are stated as annualised EXCESS returns and tied to the valuation
+    # work in reports/: names where the reverse DCF implies the least demanding
+    # assumptions get a positive view, the most demanding get a negative one.
     views:
-      - { type: "absolute", assets: ["NVDA"],          value:  0.06, confidence: 0.35 }
-      - { type: "relative", assets: ["MSFT", "XOM"],   value:  0.04, confidence: 0.50 }
-      - { type: "absolute", assets: ["KO"],            value: -0.01, confidence: 0.60 }
+      - { type: "absolute", assets: ["PG"],            value:  0.055, confidence: 0.50 }
+      - { type: "relative", assets: ["JNJ", "CAT"],    value:  0.030, confidence: 0.40 }
+      - { type: "absolute", assets: ["NVDA"],          value:  0.090, confidence: 0.30 }
 
 backtest:
   start: "2015-01-02"

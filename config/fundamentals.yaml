@@ -200,6 +200,30 @@ excess_return:
     terminal_growth: 0.030
 
 # ---------------------------------------------------------------------------
+# Diluted shares outstanding for the full universe (millions).
+# Used only to build market-capitalisation weights for the Black-Litterman
+# equilibrium prior; the valuation models take their share counts from the
+# blocks above. Analyst estimates, same caveat as everything else in this file.
+# ---------------------------------------------------------------------------
+shares_outstanding:
+  AAPL:  14700
+  MSFT:   7450
+  NVDA:  24600
+  GOOGL: 12100
+  AMZN:  10700
+  JPM:    2760
+  BAC:    7500
+  JNJ:    2420
+  UNH:     905
+  PG:     2400
+  KO:     4300
+  XOM:    4280
+  CVX:    2050
+  CAT:     470
+  HON:     640
+  NEE:    2060
+
+# ---------------------------------------------------------------------------
 # Monte-Carlo uncertainty around the DCF drivers (triangular / normal priors)
 # ---------------------------------------------------------------------------
 monte_carlo:
