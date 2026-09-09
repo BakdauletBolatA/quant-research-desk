@@ -79,7 +79,7 @@ def _download_factor_panel() -> pd.DataFrame:
     try:
         mom = _parse_french_csv(_download_french_csv(_MOM_ZIP), ["mom"])
         panel = ff5.join(mom, how="left")
-    except Exception as exc:  # noqa: BLE001 - momentum is a nice-to-have
+    except Exception as exc:
         logger.warning("Momentum factor unavailable (%s); continuing with FF5", exc)
         panel = ff5.assign(mom=pd.NA)
 
@@ -110,7 +110,7 @@ def load_factors(start: str, end: str, *, force: bool = False) -> pd.DataFrame:
             panel.to_csv(_CACHE_FILE, float_format="%.8f")
             logger.info("Factors downloaded: %d rows (%s → %s)", len(panel),
                         panel.index.min().date(), panel.index.max().date())
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             if _CACHE_FILE.exists():
                 logger.warning("Factor download failed (%s); using cache", exc)
                 panel = pd.read_csv(_CACHE_FILE, index_col="date", parse_dates=["date"])

@@ -14,12 +14,12 @@ import sys
 
 import matplotlib
 
-matplotlib.use("Agg")  # noqa: E402 - report generation is headless
+matplotlib.use("Agg")
 
-import pandas as pd  # noqa: E402
+import pandas as pd
 
-from quantdesk import __version__  # noqa: E402
-from quantdesk.config import Config, ensure_dirs, load_config, load_fundamentals  # noqa: E402
+from quantdesk import __version__
+from quantdesk.config import Config, ensure_dirs, load_config, load_fundamentals
 
 
 def _configure_logging(verbose: bool) -> None:
@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print("\nInterrupted.")
         return 130
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logging.getLogger("quantdesk").error("%s: %s", type(exc).__name__, exc)
         if args.verbose:
             raise

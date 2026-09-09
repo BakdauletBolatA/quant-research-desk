@@ -7,9 +7,9 @@ from quantdesk.data.market import download_prices, load_price_panel
 from quantdesk.data.panel import ResearchPanel, build_panel
 
 __all__ = [
-    "download_prices",
-    "load_price_panel",
-    "load_factors",
     "ResearchPanel",
     "build_panel",
+    "download_prices",
+    "load_factors",
+    "load_price_panel",
 ]

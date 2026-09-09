@@ -10,8 +10,9 @@ from __future__ import annotations
 import base64
 import datetime as dt
 import html
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -22,15 +23,23 @@ TEMPLATE_DIR = Path(__file__).parent / "templates"
 _PERCENT_HINTS = (
     "return", "cagr", "vol", "drawdown", "upside", "yield", "rate", "weight", "alpha",
     "growth", "var ", "es ", "share", "capture", "roe", "roic", "wacc", "premium",
-    "hit", "drag", "contribution", "exposure", "p(", "psr", "dsr", "shrinkage", "tracking",
+    "hit", "drag", "deflated", "sharpe p", "cost_of", "cost of", "terminal g", "erp", "contribution", "exposure", "p(", "psr", "dsr", "shrinkage", "tracking",
     "ulcer", "margin",
 )
 _INTEGER_HINTS = ("obs", "days", "count", "exceptions", "rebalances", "paths", "positions")
 _SIGNED_HINTS = ("upside", "alpha", "impact", "gap", "active")
 
 
+_PERCENT_EXCLUSIONS = ("shares", "count", "number", "paths", "ratio")
+
+
 def _is_percent(label: str) -> bool:
+    """Heuristic number format. Explicit exclusions come first: `shares_diluted`
+    contains "share" but is a count, and rendering it as 745,000% is exactly the
+    kind of silent formatting bug that discredits an otherwise correct model."""
     name = str(label).lower()
+    if any(bad in name for bad in _PERCENT_EXCLUSIONS):
+        return False
     return any(hint in name for hint in _PERCENT_HINTS)
 
 

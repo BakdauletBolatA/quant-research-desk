@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test · python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: python -m ruff check src tests
+
+      - name: Test
+        run: python -m pytest -v
+
+  reproduce:
+    name: reproduce the report offline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      # The price and factor caches are committed, so the whole study has to
+      # rebuild with no network access. If this job needs the internet, the
+      # reproducibility claim in the README is false.
+      - name: Run the pipeline
+        run: python -m quantdesk.cli run
+
+      - name: Check the deliverables exist
+        run: |
+          test -s reports/quantdesk_research_report.html
+          test -s reports/quantdesk_workbook.xlsx
+          test "$(ls reports/figures/*.png | wc -l)" -ge 18
+          echo "report size: $(du -h reports/quantdesk_research_report.html | cut -f1)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantdesk-research-report
+          path: |
+            reports/quantdesk_research_report.html
+            reports/quantdesk_workbook.xlsx
+            reports/figures/
+          retention-days: 30

@@ -132,7 +132,10 @@ def reverse_dcf(
     def f_growth(g: float) -> float:
         return _value(terminal_growth_override=g) - current_price
 
-    implied_g = _solve(f_growth, -0.05, base_wacc - 0.005)
+    # A perpetual decline steeper than 10% a year is not a growth assumption
+    # anyone would defend, so the bracket stops there and the solver returns NaN
+    # rather than a number the model cannot support.
+    implied_g = _solve(f_growth, -0.10, base_wacc - 0.005)
 
     # --- implied revenue CAGR (parallel shift of the explicit forecast) -----
     def f_shift(shift: float) -> float:

@@ -196,9 +196,21 @@ def risk_parity(
 
     result = minimize(
         objective, np.full(n, 1.0 / n), jac=gradient, method="L-BFGS-B",
-        bounds=[(1e-9, np.inf)] * n, options={"maxiter": 1000, "ftol": 1e-16},
+        bounds=[(1e-12, np.inf)] * n,
+        options={"maxiter": 20_000, "maxfun": 20_000, "ftol": 1e-18, "gtol": 1e-14},
     )
-    weights = _normalise(result.x)
+    # The stationarity condition of the log-barrier problem is
+    # (Sigma w)_i * w_i = b_i, so a couple of fixed-point polish steps drive the
+    # risk-contribution dispersion down to machine noise. Cheap, and it means
+    # the ERC property holds to 1e-12 rather than to the optimiser's tolerance.
+    weights = np.clip(result.x, 1e-14, None)
+    for _ in range(64):
+        candidate = np.sqrt(b / np.maximum(matrix @ weights, 1e-18) * weights)
+        if np.max(np.abs(candidate - weights)) < 1e-15:
+            weights = candidate
+            break
+        weights = candidate
+    weights = _normalise(weights)
 
     # Box constraints are applied after the fact: the log-barrier form has no
     # room for them, and clipping an ERC solution is a documented compromise

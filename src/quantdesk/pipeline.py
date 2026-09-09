@@ -11,7 +11,6 @@ from __future__ import annotations
 import datetime as dt
 import logging
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -19,7 +18,6 @@ import pandas as pd
 
 from quantdesk import __version__
 from quantdesk.analytics import (
-    drawdown_table,
     factor_regression,
     factor_table,
     performance_summary,
@@ -47,7 +45,6 @@ from quantdesk.portfolio import (
     condition_number,
     correlation_from_covariance,
     derive_risk_aversion,
-    effective_number_of_bets,
     efficient_frontier,
     estimate_covariance,
     ledoit_wolf_shrinkage,
@@ -527,7 +524,6 @@ def _build_report_context(**kw) -> dict[str, Any]:
     market = kw["market"]
     focus = kw["focus"]
 
-    ann = panel.periods_per_year
     label = headline.label
     bench_col = benchmark_label
 
@@ -971,32 +967,47 @@ def _build_report_context(**kw) -> dict[str, Any]:
                 ),
                 bullets(
                     [
-                        "<b>Survivorship and selection.</b> No delisted or acquired names, and "
-                        "no point-in-time index membership. Treat cross-strategy differences as "
-                        "the result; treat the level of returns as an upper bound.",
-                        "<b>Single market, single currency.</b> US large-cap equity only. No "
-                        "credit, no rates, no FX, no small caps, no non-US listings — so the "
-                        "correlation structure is far friendlier than a real book's.",
-                        "<b>Long-only, fully invested.</b> No shorting, no leverage, no cash "
-                        "allocation and no derivatives overlay, which removes most of the ways a "
-                        "real mandate can go wrong.",
-                        "<b>Transaction costs are a flat "
-                        f"{cfg['backtest']['transaction_cost_bps']:.0f}bp</b> on traded notional. "
-                        "Real costs are state-dependent and rise exactly when a strategy wants "
-                        "to trade most; market impact and borrow are not modelled at all.",
-                        "<b>The valuation inputs are the modeller's estimates</b>, not a "
-                        "fundamentals feed. They are versioned in "
-                        "<code>config/fundamentals.yaml</code> so they can be re-keyed from "
-                        "filings and the whole report regenerated — that is the mitigation, not "
-                        "a claim that they are audited.",
-                        "<b>Factor data lags prices</b> by several weeks; factor statistics use "
-                        "the overlapping window only, so the most recent period is absent from "
-                        "the attribution but present in the performance figures.",
-                        "<b>Multiple testing.</b> Several strategies were evaluated on one "
-                        "sample. The Deflated Sharpe p-value in section 5 is the correction; it "
-                        "is reported for every strategy, not only the flattering ones.",
-                        "<b>Nothing here is investment advice</b>, a price target, or a "
-                        "recommendation. It is a demonstration of method.",
+                        (
+                            "<b>Survivorship and selection.</b> No delisted or acquired names, and "
+                            "no point-in-time index membership. Treat cross-strategy differences as "
+                            "the result; treat the level of returns as an upper bound."
+                        ),
+                        (
+                            "<b>Single market, single currency.</b> US large-cap equity only. No "
+                            "credit, no rates, no FX, no small caps, no non-US listings — so the "
+                            "correlation structure is far friendlier than a real book's."
+                        ),
+                        (
+                            "<b>Long-only, fully invested.</b> No shorting, no leverage, no cash "
+                            "allocation and no derivatives overlay, which removes most of the ways a "
+                            "real mandate can go wrong."
+                        ),
+                        (
+                            "{cfg['backtest']['transaction_cost_bps']:.0f}bp</b> on traded notional. "
+                            "Real costs are state-dependent and rise exactly when a strategy wants "
+                            "to trade most; market impact and borrow are not modelled at all."
+                        ),
+                        (
+                            "<b>The valuation inputs are the modeller's estimates</b>, not a "
+                            "fundamentals feed. They are versioned in "
+                            "<code>config/fundamentals.yaml</code> so they can be re-keyed from "
+                            "filings and the whole report regenerated — that is the mitigation, not "
+                            "a claim that they are audited."
+                        ),
+                        (
+                            "<b>Factor data lags prices</b> by several weeks; factor statistics use "
+                            "the overlapping window only, so the most recent period is absent from "
+                            "the attribution but present in the performance figures."
+                        ),
+                        (
+                            "<b>Multiple testing.</b> Several strategies were evaluated on one "
+                            "sample. The Deflated Sharpe p-value in section 5 is the correction; it "
+                            "is reported for every strategy, not only the flattering ones."
+                        ),
+                        (
+                            "<b>Nothing here is investment advice</b>, a price target, or a "
+                            "recommendation. It is a demonstration of method."
+                        ),
                     ]
                 ),
             ],
@@ -1011,26 +1022,26 @@ def _build_report_context(**kw) -> dict[str, Any]:
             "blocks": [
                 bullets(
                     [
-                        "<b>Data.</b> Daily adjusted closes from the public Yahoo Finance chart "
+                        ("<b>Data.</b> Daily adjusted closes from the public Yahoo Finance chart "
                         "endpoint, cached to <code>data/raw/prices/</code> and committed. Factor "
                         "and risk-free series from the Kenneth R. French Data Library, cached to "
-                        "<code>data/raw/factors/</code>. The repository reproduces offline.",
-                        "<b>Alignment.</b> Prices, factors and the risk-free path are joined once "
-                        "in <code>ResearchPanel</code>. The market calendar is authoritative.",
-                        "<b>Estimation.</b> Ledoit-Wolf shrinkage for covariance; Black-Litterman "
-                        "for expected returns; Newey-West for regression inference.",
-                        "<b>Backtest.</b> Point-in-time loop, drift between rebalances, costs on "
+                        "<code>data/raw/factors/</code>. The repository reproduces offline."),
+                        ("<b>Alignment.</b> Prices, factors and the risk-free path are joined once "
+                        "in <code>ResearchPanel</code>. The market calendar is authoritative."),
+                        ("<b>Estimation.</b> Ledoit-Wolf shrinkage for covariance; Black-Litterman "
+                        "for expected returns; Newey-West for regression inference."),
+                        ("<b>Backtest.</b> Point-in-time loop, drift between rebalances, costs on "
                         "traded notional. Allocators receive a <code>StrategyContext</code> that "
-                        "carries only data available at the rebalance date.",
-                        "<b>Valuation.</b> Two-stage FCFF with mid-year discounting and "
+                        "carries only data available at the rebalance date."),
+                        ("<b>Valuation.</b> Two-stage FCFF with mid-year discounting and "
                         "steady-state reinvestment; residual income for banks; Monte Carlo and "
-                        "Brent-solved reverse DCF on top.",
-                        "<b>Tests.</b> <code>pytest</code> covers the analytics against closed-form "
+                        "Brent-solved reverse DCF on top."),
+                        ("<b>Tests.</b> <code>pytest</code> covers the analytics against closed-form "
                         "results, the optimisers against their defining properties (equal risk "
                         "contribution, budget constraints), the vectorised Monte Carlo against "
-                        "the pandas DCF, and the backtest against look-ahead.",
-                        "<b>Run it.</b> <code>make install &amp;&amp; make data &amp;&amp; make "
-                        "pipeline</code>, or <code>quantdesk run</code>.",
+                        "the pandas DCF, and the backtest against look-ahead."),
+                        ("<b>Run it.</b> <code>make install &amp;&amp; make data &amp;&amp; make "
+                        "pipeline</code>, or <code>quantdesk run</code>."),
                     ]
                 ),
             ],

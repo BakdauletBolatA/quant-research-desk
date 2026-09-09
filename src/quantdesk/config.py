@@ -92,7 +92,7 @@ class Config:
 def load_config(path: str | Path | None = None) -> Config:
     """Load and cache the master configuration."""
     cfg_path = Path(path) if path else CONFIG_DIR / "config.yaml"
-    with open(cfg_path, "r", encoding="utf-8") as fh:
+    with open(cfg_path, encoding="utf-8") as fh:
         return Config(raw=yaml.safe_load(fh))
 
 
@@ -100,5 +100,5 @@ def load_config(path: str | Path | None = None) -> Config:
 def load_fundamentals(path: str | Path | None = None) -> dict[str, Any]:
     """Load the analyst input sheet used by the valuation models."""
     fund_path = Path(path) if path else CONFIG_DIR / "fundamentals.yaml"
-    with open(fund_path, "r", encoding="utf-8") as fh:
+    with open(fund_path, encoding="utf-8") as fh:
         return yaml.safe_load(fh)

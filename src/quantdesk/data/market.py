@@ -73,7 +73,7 @@ def _get_json(symbol: str, params: dict[str, object], timeout: float) -> dict:
 def _to_epoch(date: str | dt.date) -> int:
     if isinstance(date, str):
         date = dt.date.fromisoformat(date)
-    return int(dt.datetime.combine(date, dt.time(), tzinfo=dt.timezone.utc).timestamp())
+    return int(dt.datetime.combine(date, dt.time(), tzinfo=dt.UTC).timestamp())
 
 
 def _fetch_one(symbol: str, start: str, end: str, timeout: float = 30.0) -> pd.DataFrame:
@@ -174,7 +174,7 @@ def download_prices(
                         frame.index.min().date(), frame.index.max().date())
             out[symbol] = frame
             time.sleep(pause)  # be a polite client
-        except Exception as exc:  # noqa: BLE001 - degrade, never crash the pipeline
+        except Exception as exc:
             if cached is not None:
                 logger.warning("%-6s download failed (%s); using cached history", symbol, exc)
                 out[symbol] = cached

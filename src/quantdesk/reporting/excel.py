@@ -9,8 +9,9 @@ next to the outputs they drive.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -19,15 +20,20 @@ import pandas as pd
 _PERCENT_HINTS = (
     "return", "cagr", "vol", "drawdown", "upside", "yield", "rate", "weight", "alpha",
     "growth", "var ", "es ", "share", "capture", "roe", "roic", "wacc", "premium",
-    "hit", "drag", "contribution", "exposure", "p(", "psr", "dsr", "shrinkage",
+    "hit", "drag", "deflated", "sharpe p", "cost_of", "cost of", "terminal g", "erp", "contribution", "exposure", "p(", "psr", "dsr", "shrinkage",
 )
 _INTEGER_HINTS = ("obs", "days", "count", "exceptions", "rebalances", "paths", "n ")
+
+
+_PERCENT_EXCLUSIONS = ("shares", "count", "number", "paths", "ratio")
 
 
 def _format_for(column: str, formats: dict[str, Any]) -> Any:
     name = str(column).lower()
     if any(hint in name for hint in _INTEGER_HINTS):
         return formats["int"]
+    if any(bad in name for bad in _PERCENT_EXCLUSIONS):
+        return formats["num"]
     if any(hint in name for hint in _PERCENT_HINTS):
         return formats["pct"]
     return formats["num"]

@@ -41,3 +41,16 @@ addopts = "-q --strict-markers"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM", "ISC", "RUF"]
+ignore = [
+    "E501",    # line length is enforced by the formatter, not the linter
+    "RUF001",  # en dashes and typographic quotes are deliberate in report copy
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/quantdesk/*/__init__.py" = ["F401"]  # re-exports are the point of these files
+"tests/*" = ["B011"]

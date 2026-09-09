@@ -32,8 +32,8 @@ from quantdesk.reporting.style import (
     INK_PRIMARY,
     INK_SECONDARY,
     SERIES,
-    SURFACE,
     STATUS,
+    SURFACE,
     apply_style,
     finish,
     series_color,
@@ -90,7 +90,7 @@ def drawdown_chart(returns: pd.DataFrame, path: Path, highlight: list[str] | Non
     fig, ax = plt.subplots(figsize=(11, 4.4))
     highlight = highlight or list(returns.columns[:2])
 
-    for i, column in enumerate(returns.columns):
+    for column in returns.columns:
         dd = drawdown_series(returns[column])
         if column in highlight:
             slot = highlight.index(column)

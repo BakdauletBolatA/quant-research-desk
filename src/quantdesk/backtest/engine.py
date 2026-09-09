@@ -157,7 +157,7 @@ def run_backtest(
             )
             try:
                 target = align_weights(strategy(context), columns)
-            except Exception as exc:  # noqa: BLE001 - hold the book, log, continue
+            except Exception as exc:
                 logger.warning("%s: allocation failed on %s (%s); holding previous weights",
                                strategy_name, date.date(), exc)
                 continue
@@ -207,7 +207,7 @@ def run_all(
     for name in strategy_names:
         try:
             results[name] = run_backtest(name, returns, prices, risk_free, **kwargs)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.error("Strategy %s failed: %s", name, exc)
     if not results:
         raise RuntimeError("Every strategy failed — check the configuration.")

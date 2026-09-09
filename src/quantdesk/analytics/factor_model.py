@@ -107,7 +107,11 @@ def factor_regression(
     if not available:
         raise ValueError(f"None of {names} present in the factor panel")
 
-    data = pd.concat([excess_returns.rename("y"), factors[available]], axis=1).dropna()
+    # Reindex onto the return series first: concatenating two differently
+    # indexed frames leaves pandas to sort the union, which is both slower and
+    # a deprecation warning waiting to happen.
+    aligned = factors[available].reindex(excess_returns.index)
+    data = pd.concat([excess_returns.rename("y"), aligned], axis=1).dropna()
     if len(data) < 60:
         raise ValueError(f"Need at least 60 aligned observations, got {len(data)}")
 
