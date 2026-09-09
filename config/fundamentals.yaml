@@ -1,0 +1,195 @@
+# ============================================================================
+#  ANALYST INPUT SHEET  —  valuation drivers
+# ----------------------------------------------------------------------------
+#  IMPORTANT / HONESTY NOTE
+#  These are the *modeller's own normalised estimates*, rounded to the nearest
+#  round figure and stated in USD millions. They are the equivalent of the blue
+#  input cells in a banking model: they are meant to be re-keyed from the latest
+#  10-K / 10-Q before any decision is taken. Nothing here is a data feed, and
+#  no output of this repository is investment advice.
+#
+#  Every valuation output is therefore reported *with* a sensitivity grid and a
+#  Monte-Carlo distribution — the point estimate on its own is close to useless.
+# ============================================================================
+
+meta:
+  as_of: "2026-09-09"
+  units: "USD millions (shares in millions)"
+  basis: "Normalised last-twelve-months / latest reported fiscal year"
+
+# ---------------------------------------------------------------------------
+# Macro / market inputs shared by every model
+# ---------------------------------------------------------------------------
+market:
+  risk_free_rate: 0.042        # 10Y UST, analyst input
+  equity_risk_premium: 0.045   # mature-market ERP
+  marginal_tax_rate: 0.23
+
+# ---------------------------------------------------------------------------
+# FCFF discounted cash-flow inputs (non-financials only)
+# ---------------------------------------------------------------------------
+dcf:
+  AAPL:
+    fiscal_year: "FY2025"
+    revenue: 416000
+    ebit: 127000
+    d_and_a: 12000
+    capex: 12500
+    delta_nwc: 500
+    tax_rate: 0.24
+    total_debt: 98000
+    cash_and_investments: 55000
+    shares_diluted: 14700
+    beta: 1.15
+    cost_of_debt: 0.045
+    revenue_growth: [0.070, 0.060, 0.055, 0.050, 0.045]
+    ebit_margin:    [0.306, 0.308, 0.310, 0.310, 0.310]
+    terminal_growth: 0.030
+  MSFT:
+    fiscal_year: "FY2025"
+    revenue: 281000
+    ebit: 128000
+    d_and_a: 33000
+    capex: 64000
+    delta_nwc: 3000
+    tax_rate: 0.18
+    total_debt: 60000
+    cash_and_investments: 94000
+    shares_diluted: 7450
+    beta: 0.95
+    cost_of_debt: 0.042
+    revenue_growth: [0.140, 0.125, 0.110, 0.095, 0.080]
+    ebit_margin:    [0.455, 0.458, 0.460, 0.460, 0.460]
+    terminal_growth: 0.030
+  NVDA:
+    fiscal_year: "FY2026"
+    revenue: 205000
+    ebit: 128000
+    d_and_a: 2500
+    capex: 6000
+    delta_nwc: 6000
+    tax_rate: 0.17
+    total_debt: 8500
+    cash_and_investments: 60000
+    shares_diluted: 24600
+    beta: 1.75
+    cost_of_debt: 0.043
+    revenue_growth: [0.320, 0.220, 0.150, 0.100, 0.070]
+    ebit_margin:    [0.620, 0.605, 0.590, 0.575, 0.560]
+    terminal_growth: 0.030
+  GOOGL:
+    fiscal_year: "FY2025"
+    revenue: 400000
+    ebit: 128000
+    d_and_a: 20000
+    capex: 85000
+    delta_nwc: 2000
+    tax_rate: 0.17
+    total_debt: 30000
+    cash_and_investments: 95000
+    shares_diluted: 12100
+    beta: 1.05
+    cost_of_debt: 0.042
+    revenue_growth: [0.130, 0.115, 0.100, 0.085, 0.070]
+    ebit_margin:    [0.325, 0.330, 0.335, 0.335, 0.335]
+    terminal_growth: 0.030
+  JNJ:
+    fiscal_year: "FY2025"
+    revenue: 92000
+    ebit: 24000
+    d_and_a: 10500
+    capex: 5000
+    delta_nwc: 500
+    tax_rate: 0.17
+    total_debt: 50000
+    cash_and_investments: 25000
+    shares_diluted: 2420
+    beta: 0.55
+    cost_of_debt: 0.046
+    revenue_growth: [0.040, 0.040, 0.035, 0.035, 0.030]
+    ebit_margin:    [0.265, 0.268, 0.270, 0.270, 0.270]
+    terminal_growth: 0.025
+  PG:
+    fiscal_year: "FY2025"
+    revenue: 84500
+    ebit: 19800
+    d_and_a: 3000
+    capex: 3400
+    delta_nwc: 200
+    tax_rate: 0.21
+    total_debt: 34000
+    cash_and_investments: 10000
+    shares_diluted: 2400
+    beta: 0.45
+    cost_of_debt: 0.044
+    revenue_growth: [0.030, 0.030, 0.030, 0.028, 0.025]
+    ebit_margin:    [0.236, 0.238, 0.240, 0.240, 0.240]
+    terminal_growth: 0.023
+  XOM:
+    fiscal_year: "FY2025"
+    revenue: 340000
+    ebit: 33000
+    d_and_a: 26000
+    capex: 27000
+    delta_nwc: 1000
+    tax_rate: 0.33
+    total_debt: 42000
+    cash_and_investments: 25000
+    shares_diluted: 4280
+    beta: 0.85
+    cost_of_debt: 0.048
+    revenue_growth: [0.020, 0.020, 0.015, 0.015, 0.010]
+    ebit_margin:    [0.098, 0.100, 0.100, 0.100, 0.100]
+    terminal_growth: 0.020
+  CAT:
+    fiscal_year: "FY2025"
+    revenue: 64000
+    ebit: 12500
+    d_and_a: 3000
+    capex: 3300
+    delta_nwc: 700
+    tax_rate: 0.23
+    total_debt: 39000
+    cash_and_investments: 6000
+    shares_diluted: 470
+    beta: 1.20
+    cost_of_debt: 0.049
+    revenue_growth: [0.045, 0.045, 0.040, 0.035, 0.030]
+    ebit_margin:    [0.196, 0.198, 0.200, 0.200, 0.200]
+    terminal_growth: 0.025
+
+# ---------------------------------------------------------------------------
+# Banks are NOT valued with FCFF.
+# Free cash flow to the firm is meaningless when leverage *is* the business and
+# working capital is the balance sheet. We use an excess-return (residual
+# income) model instead:  V0 = BV0 + PV[(ROE_t - Ke) * BV_{t-1}]
+# ---------------------------------------------------------------------------
+excess_return:
+  JPM:
+    fiscal_year: "FY2025"
+    book_value_equity: 360000
+    shares_diluted: 2760
+    roe_path: [0.165, 0.155, 0.148, 0.140, 0.135]
+    payout_ratio: 0.45
+    beta: 1.05
+    terminal_roe: 0.130
+    terminal_growth: 0.030
+  BAC:
+    fiscal_year: "FY2025"
+    book_value_equity: 300000
+    shares_diluted: 7500
+    roe_path: [0.105, 0.108, 0.110, 0.110, 0.110]
+    payout_ratio: 0.45
+    beta: 1.15
+    terminal_roe: 0.105
+    terminal_growth: 0.030
+
+# ---------------------------------------------------------------------------
+# Monte-Carlo uncertainty around the DCF drivers (triangular / normal priors)
+# ---------------------------------------------------------------------------
+monte_carlo:
+  revenue_growth_shock_sd: 0.020   # absolute, applied to every forecast year
+  ebit_margin_shock_sd:    0.020   # absolute margin points
+  wacc_shock_sd:           0.0075
+  terminal_growth_shock_sd: 0.0040
+  terminal_growth_cap_spread: 0.010  # g must stay <= WACC - 100bp

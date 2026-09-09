@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantdesk"
+version = "1.0.0"
+description = "Institutional-grade equity research, valuation and portfolio risk platform"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Bakdaulet Bolat", email = "bolatbakdaulet2000@gmail.com" }]
+keywords = ["finance", "quant", "portfolio", "valuation", "risk", "dcf", "backtest"]
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scipy>=1.13",
+    "matplotlib>=3.9",
+    "statsmodels>=0.14",
+    "scikit-learn>=1.5",
+    "requests>=2.32",
+    "PyYAML>=6.0",
+    "Jinja2>=3.1",
+    "XlsxWriter>=3.2",
+    "tabulate>=0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6"]
+
+[project.scripts]
+quantdesk = "quantdesk.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

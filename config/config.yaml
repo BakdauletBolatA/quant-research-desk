@@ -1,0 +1,90 @@
+# ============================================================================
+#  QuantDesk — master research configuration
+#  Every number that drives the pipeline lives here, not in the code.
+# ============================================================================
+
+project:
+  name: "QuantDesk"
+  subtitle: "Institutional Equity Research & Portfolio Risk Platform"
+  author: "Bakdaulet Bolat"
+  base_currency: "USD"
+
+data:
+  start: "2012-01-01"
+  end: null                    # null -> today
+  benchmark: "SPY"
+  risk_free_source: "fama_french"   # daily RF from Ken French library
+  cache_dir: "data/raw"
+  processed_dir: "data/processed"
+  max_stale_days: 5            # re-download cache older than this
+
+universe:
+  # Liquid US large caps, deliberately spread across sectors so that the
+  # covariance matrix is not a single tech factor in disguise.
+  AAPL:  { name: "Apple",              sector: "Information Technology" }
+  MSFT:  { name: "Microsoft",          sector: "Information Technology" }
+  NVDA:  { name: "NVIDIA",             sector: "Information Technology" }
+  GOOGL: { name: "Alphabet",           sector: "Communication Services" }
+  AMZN:  { name: "Amazon",             sector: "Consumer Discretionary" }
+  JPM:   { name: "JPMorgan Chase",     sector: "Financials" }
+  BAC:   { name: "Bank of America",    sector: "Financials" }
+  JNJ:   { name: "Johnson & Johnson",  sector: "Health Care" }
+  UNH:   { name: "UnitedHealth",       sector: "Health Care" }
+  PG:    { name: "Procter & Gamble",   sector: "Consumer Staples" }
+  KO:    { name: "Coca-Cola",          sector: "Consumer Staples" }
+  XOM:   { name: "Exxon Mobil",        sector: "Energy" }
+  CVX:   { name: "Chevron",            sector: "Energy" }
+  CAT:   { name: "Caterpillar",        sector: "Industrials" }
+  HON:   { name: "Honeywell",          sector: "Industrials" }
+  NEE:   { name: "NextEra Energy",     sector: "Utilities" }
+
+analytics:
+  periods_per_year: 252
+  var_confidence: 0.99
+  es_confidence: 0.975         # Basel FRTB uses 97.5% Expected Shortfall
+  ewma_lambda: 0.94            # RiskMetrics decay
+  rolling_window: 252
+
+factors:
+  model: "ff5_mom"             # Mkt-RF, SMB, HML, RMW, CMA + Momentum
+  newey_west_lags: 5
+
+portfolio:
+  covariance: "ledoit_wolf"    # sample | ledoit_wolf | ewma
+  long_only: true
+  max_weight: 0.25
+  min_weight: 0.0
+  risk_aversion: 3.0
+  black_litterman:
+    tau: 0.05
+    # Analyst views, expressed as annualised excess return, absolute or relative.
+    views:
+      - { type: "absolute", assets: ["NVDA"],          value:  0.06, confidence: 0.35 }
+      - { type: "relative", assets: ["MSFT", "XOM"],   value:  0.04, confidence: 0.50 }
+      - { type: "absolute", assets: ["KO"],            value: -0.01, confidence: 0.60 }
+
+backtest:
+  start: "2015-01-02"
+  rebalance: "QE"              # quarter-end
+  lookback_days: 756           # 3y estimation window
+  transaction_cost_bps: 10.0   # round-turn cost on traded notional
+  strategies:
+    - equal_weight
+    - min_variance
+    - max_sharpe
+    - risk_parity
+    - hrp
+    - black_litterman
+    - momentum_12_1
+
+valuation:
+  default_erp: 0.045           # mature-market equity risk premium
+  terminal_growth: 0.025
+  forecast_years: 5
+  monte_carlo_paths: 20000
+  seed: 42
+
+reporting:
+  output_dir: "reports"
+  figures_dir: "reports/figures"
+  style: "quantdesk_dark"
