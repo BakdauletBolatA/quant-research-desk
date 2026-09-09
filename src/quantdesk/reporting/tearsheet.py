@@ -128,7 +128,7 @@ def callout(tag: str, markup: str, variant: str = "") -> dict[str, Any]:
 
 
 def bullets(items: Iterable[str]) -> dict[str, Any]:
-    return {"kind": "list", "items": list(items)}
+    return {"kind": "list", "entries": list(items)}
 
 
 def table(frame: pd.DataFrame, caption: str = "", note: str = "", **kwargs) -> dict[str, Any]:

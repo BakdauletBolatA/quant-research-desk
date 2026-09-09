@@ -67,7 +67,7 @@ def apply_style() -> None:
             "figure.edgecolor": SURFACE,
             "savefig.facecolor": SURFACE,
             "savefig.edgecolor": SURFACE,
-            "savefig.bbox": "tight",
+            "savefig.bbox": "standard",
             "savefig.dpi": 160,
             "figure.dpi": 110,
             "axes.facecolor": SURFACE,
@@ -75,7 +75,7 @@ def apply_style() -> None:
             "axes.labelcolor": INK_SECONDARY,
             "axes.titlecolor": INK_PRIMARY,
             "axes.titlesize": 12.5,
-            "axes.titleweight": "600",
+            "axes.titleweight": "bold",
             "axes.titlelocation": "left",
             "axes.titlepad": 12,
             "axes.labelsize": 10,
@@ -122,9 +122,19 @@ def annotate_source(ax, text: str) -> None:
 
 
 def finish(fig, path, source: str | None = None) -> str:
-    """Save a figure and return its path as a string."""
+    """Lay the figure out, stamp the source note in reserved space, and save.
+
+    The note gets its own strip at the bottom rather than being dropped on top
+    of the plot: with rotated tick labels a naive ``fig.text`` at y=0 lands
+    underneath them.
+    """
+    reserved = 0.075 if source else 0.02
+    try:
+        fig.tight_layout(rect=(0.0, reserved, 1.0, 1.0))
+    except Exception:  # noqa: BLE001 - layout is cosmetic, never fatal
+        pass
     if source:
-        fig.text(0.005, 0.005, source, ha="left", va="bottom", fontsize=8, color=INK_MUTED)
+        fig.text(0.008, 0.012, source, ha="left", va="bottom", fontsize=8, color=INK_MUTED)
     fig.savefig(path)
     plt.close(fig)
     return str(path)

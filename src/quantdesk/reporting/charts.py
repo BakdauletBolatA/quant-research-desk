@@ -51,7 +51,7 @@ _pct = PercentFormatter(xmax=1.0, decimals=0)
 def _direct_label(ax, x, y, text: str, color: str, dx: float = 6.0) -> None:
     ax.annotate(
         text, xy=(x, y), xytext=(dx, 0), textcoords="offset points",
-        va="center", ha="left", fontsize=9, color=color, fontweight="600",
+        va="center", ha="left", fontsize=9, color=color, fontweight="bold",
         clip_on=False,
     )
 
@@ -184,30 +184,44 @@ def var_exceptions(
     return finish(fig, path, SOURCE_MARKET)
 
 
+VAR_METHOD_LABELS = {
+    "historical": "Historical",
+    "gaussian": "Gaussian",
+    "cornish_fisher": "Cornish-Fisher",
+    "ewma": "EWMA (λ=0.94)",
+    "filtered_historical": "Filtered HS",
+}
+
+
 def var_model_comparison(table: pd.DataFrame, path: Path, expected_rate: float) -> str:
     """Realised exception rate per estimator against the rate the model promises."""
-    fig, ax = plt.subplots(figsize=(9.5, 4.2))
-    labels = [str(i).replace("_", " ").title() for i in table.index]
+    fig, ax = plt.subplots(figsize=(10.0, 4.4))
+    labels = [VAR_METHOD_LABELS.get(str(i), str(i)) for i in table.index]
     rates = table["exception_rate"].to_numpy(dtype=float)
     passed = table["kupiec_p"].to_numpy(dtype=float) > 0.05
 
     colors = [STATUS["good"] if ok else STATUS["critical"] for ok in passed]
-    bars = ax.bar(labels, rates, color=colors, width=0.6, zorder=3)
-    for rect, rate, ok in zip(bars, rates, passed, strict=True):
+    ax.bar(labels, rates, color=colors, width=0.58, zorder=3)
+    ax.set_ylim(0, max(float(rates.max()) * 1.42, expected_rate * 2.2))
+
+    for x, (rate, ok, p_value) in enumerate(
+        zip(rates, passed, table["kupiec_p"].to_numpy(dtype=float), strict=True)
+    ):
         ax.annotate(
-            f"{rate:.2%}\n{'coverage OK' if ok else 'reject'}",
-            xy=(rect.get_x() + rect.get_width() / 2, rate), xytext=(0, 6),
-            textcoords="offset points", ha="center", fontsize=8.5, color=INK_SECONDARY,
+            f"{rate:.2%}\n{'coverage OK' if ok else 'reject'} (p={p_value:.3f})",
+            xy=(x, rate), xytext=(0, 7), textcoords="offset points", ha="center",
+            fontsize=8.5, color=INK_SECONDARY,
         )
 
     ax.axhline(expected_rate, color=INK_PRIMARY, linewidth=1.4, linestyle=(0, (4, 3)), zorder=4)
-    ax.annotate(f"model promise {expected_rate:.1%}", xy=(len(labels) - 0.4, expected_rate),
-                xytext=(0, 6), textcoords="offset points", ha="right", fontsize=8.5,
-                color=INK_PRIMARY, fontweight="600")
+    ax.annotate(
+        f"the model promises {expected_rate:.1%}", xy=(0.0, expected_rate),
+        xycoords=("axes fraction", "data"), xytext=(4, 5), textcoords="offset points",
+        ha="left", va="bottom", fontsize=8.5, color=INK_PRIMARY, fontweight="bold",
+    )
     ax.yaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=1))
     ax.set_title("VaR model validation — realised exception rate vs promised")
     ax.set_ylabel("Exception rate")
-    ax.set_ylim(0, max(rates.max() * 1.35, expected_rate * 2))
     return finish(fig, path, SOURCE_MARKET)
 
 
@@ -234,6 +248,24 @@ def risk_contribution_chart(contributions: pd.DataFrame, path: Path) -> str:
 # ---------------------------------------------------------------------------
 # Portfolio construction
 # ---------------------------------------------------------------------------
+def _spread_labels(positions: list[float], min_gap: float) -> list[float]:
+    """Push overlapping label anchors apart while preserving their order.
+
+    Matplotlib will happily draw two annotations on top of each other; on a
+    scatter of allocator outcomes that is exactly where the interesting points
+    cluster, so the labels are de-collided explicitly.
+    """
+    order = sorted(range(len(positions)), key=lambda i: positions[i])
+    adjusted = list(positions)
+    for rank, index in enumerate(order):
+        if rank == 0:
+            continue
+        previous = adjusted[order[rank - 1]]
+        if adjusted[index] - previous < min_gap:
+            adjusted[index] = previous + min_gap
+    return adjusted
+
+
 def efficient_frontier_chart(
     frontier: pd.DataFrame,
     assets: pd.DataFrame,
@@ -245,22 +277,39 @@ def efficient_frontier_chart(
     Strategy points are separated by marker shape *and* direct label, not by
     colour: an eight-way colour split would breach the all-pairs CVD floor.
     """
-    fig, ax = plt.subplots(figsize=(9.6, 6.2))
+    fig, ax = plt.subplots(figsize=(10.4, 6.4))
     ax.plot(frontier["volatility"], frontier["expected_return"], color=series_color(0),
             linewidth=2.2, zorder=3, label="Efficient frontier")
 
     ax.scatter(assets["volatility"], assets["expected_return"], s=34, color=GRIDLINE,
                edgecolor=BASELINE, linewidth=0.7, zorder=2)
-    for name, row in assets.iterrows():
-        ax.annotate(str(name), xy=(row["volatility"], row["expected_return"]), xytext=(4, -3),
-                    textcoords="offset points", fontsize=7.5, color=INK_MUTED)
+
+    all_y = list(assets["expected_return"]) + list(portfolios["expected_return"])
+    span = (max(all_y) - min(all_y)) or 1.0
+    ax.set_ylim(min(all_y) - span * 0.10, max(all_y) + span * 0.12)
+    all_x = list(assets["volatility"]) + list(portfolios["volatility"])
+    x_span = (max(all_x) - min(all_x)) or 1.0
+    ax.set_xlim(min(all_x) - x_span * 0.06, max(all_x) + x_span * 0.16)
+
+    asset_labels = _spread_labels(list(assets["expected_return"]), span * 0.032)
+    for (name, row), label_y in zip(assets.iterrows(), asset_labels, strict=True):
+        ax.annotate(str(name), xy=(row["volatility"], label_y), xytext=(6, 0),
+                    textcoords="offset points", fontsize=7.5, color=INK_MUTED, va="center")
 
     markers = ["o", "s", "D", "^", "v", "P", "X", "*"]
-    for i, (name, row) in enumerate(portfolios.iterrows()):
-        ax.scatter(row["volatility"], row["expected_return"], s=115, marker=markers[i % 8],
-                   color=series_color(0), edgecolor=SERIES[0], linewidth=1.2, zorder=5)
-        ax.annotate(str(name), xy=(row["volatility"], row["expected_return"]), xytext=(9, 5),
-                    textcoords="offset points", fontsize=9, color=INK_PRIMARY, fontweight="600")
+    portfolio_labels = _spread_labels(list(portfolios["expected_return"]), span * 0.050)
+    for i, ((name, row), label_y) in enumerate(
+        zip(portfolios.iterrows(), portfolio_labels, strict=True)
+    ):
+        ax.scatter(row["volatility"], row["expected_return"], s=120, marker=markers[i % 8],
+                   color=series_color(0), edgecolor=SURFACE, linewidth=1.1, zorder=5)
+        ax.annotate(
+            str(name), xy=(row["volatility"], row["expected_return"]),
+            xytext=(row["volatility"] + x_span * 0.035, label_y), textcoords="data",
+            fontsize=9, color=INK_PRIMARY, fontweight="bold", va="center", zorder=6,
+            arrowprops={"arrowstyle": "-", "color": BASELINE, "linewidth": 0.8,
+                        "shrinkA": 4, "shrinkB": 2},
+        )
 
     ax.xaxis.set_major_formatter(_pct)
     ax.yaxis.set_major_formatter(_pct)
@@ -273,8 +322,9 @@ def efficient_frontier_chart(
 
 def weights_heatmap(weights: pd.DataFrame, path: Path, title: str | None = None) -> str:
     """Average allocation by holding and strategy — magnitude, so one hue."""
-    fig, ax = plt.subplots(figsize=(max(8.0, weights.shape[1] * 1.35), max(6.0,
-                                                                           weights.shape[0] * 0.4)))
+    fig, ax = plt.subplots(
+        figsize=(max(8.5, weights.shape[1] * 1.4), max(6.6, weights.shape[0] * 0.45))
+    )
     image = ax.imshow(weights.to_numpy(), cmap=CMAP_SEQUENTIAL, aspect="auto", vmin=0.0)
 
     ax.set_xticks(range(weights.shape[1]), weights.columns, rotation=28, ha="right", fontsize=9)
@@ -373,7 +423,7 @@ def monte_carlo_distribution(
     ):
         ax.axvline(value, color=color, linewidth=2.0, zorder=5)
         ax.annotate(label, xy=(value, ax.get_ylim()[1] * 0.94), xytext=(6, 0),
-                    textcoords="offset points", fontsize=9, color=color, fontweight="600")
+                    textcoords="offset points", fontsize=9, color=color, fontweight="bold")
 
     probability = float(np.mean(values > price))
     ax.set_title(
@@ -408,7 +458,7 @@ def sensitivity_heatmap(grid: pd.DataFrame, path: Path, ticker: str, price: floa
                 continue
             above = value > price
             ax.text(j, i, f"{value:,.0f}", ha="center", va="center", fontsize=8.5,
-                    fontweight="700" if above else "400",
+                    fontweight="bold" if above else "normal",
                     color="#ffffff" if value > threshold else INK_SECONDARY)
 
     bar = fig.colorbar(image, ax=ax, fraction=0.04, pad=0.02)
@@ -421,11 +471,17 @@ def sensitivity_heatmap(grid: pd.DataFrame, path: Path, ticker: str, price: floa
 
 
 def football_field_chart(field: pd.DataFrame, path: Path, ticker: str, price: float) -> str:
-    fig, ax = plt.subplots(figsize=(9.6, 4.6))
+    fig, ax = plt.subplots(figsize=(10.0, 4.8))
     labels = list(field.index)
     y = np.arange(len(labels))
 
-    for i, (low, high) in enumerate(zip(field["low"], field["high"], strict=True)):
+    lows = field["low"].to_numpy(dtype=float)
+    highs = field["high"].to_numpy(dtype=float)
+    lo, hi = float(np.nanmin(lows)), float(np.nanmax(highs))
+    pad = (hi - lo) * 0.16 or max(abs(hi), 1.0) * 0.16
+    ax.set_xlim(lo - pad, hi + pad)
+
+    for i, (low, high) in enumerate(zip(lows, highs, strict=True)):
         ax.barh(y[i], high - low, left=low, height=0.52, color=series_color(0), alpha=0.85,
                 zorder=3)
         ax.annotate(f"{low:,.0f}", xy=(low, y[i]), xytext=(-7, 0), textcoords="offset points",
@@ -434,16 +490,17 @@ def football_field_chart(field: pd.DataFrame, path: Path, ticker: str, price: fl
                     va="center", ha="left", fontsize=8.5, color=INK_SECONDARY)
 
     ax.axvline(price, color=STATUS["critical"], linewidth=2.0, zorder=5)
-    ax.annotate(f"Market {price:,.0f}", xy=(price, len(labels) - 0.35), xytext=(7, 0),
-                textcoords="offset points", fontsize=9, color=STATUS["critical"],
-                fontweight="600")
+    ax.annotate(
+        f"Market {price:,.0f}", xy=(price, 1.0), xycoords=("data", "axes fraction"),
+        xytext=(7, -4), textcoords="offset points", va="top", ha="left", fontsize=9,
+        color=STATUS["critical"], fontweight="bold", zorder=6,
+    )
 
     ax.set_yticks(y, labels, fontsize=9.5)
-    ax.invert_yaxis()
+    ax.set_ylim(len(labels) - 0.5, -0.7)
     ax.set_title(f"{ticker} — valuation range by methodology")
     ax.set_xlabel("Value per share")
     ax.grid(axis="y", visible=False)
-    ax.margins(x=0.14)
     return finish(fig, path, SOURCE_MODEL)
 
 
@@ -484,7 +541,7 @@ def implied_cost_of_capital_chart(table: pd.DataFrame, path: Path, risk_free: fl
            label="WACC implied by market price", zorder=3)
     ax.axhline(risk_free, color=INK_PRIMARY, linewidth=1.5, linestyle=(0, (4, 3)), zorder=5)
     ax.annotate(f"risk-free {risk_free:.1%}", xy=(len(tickers) - 0.6, risk_free), xytext=(0, 5),
-                textcoords="offset points", fontsize=8.5, color=INK_PRIMARY, fontweight="600")
+                textcoords="offset points", fontsize=8.5, color=INK_PRIMARY, fontweight="bold")
 
     ax.set_xticks(x, tickers, fontsize=10)
     ax.yaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))

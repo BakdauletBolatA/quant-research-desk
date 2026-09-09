@@ -193,7 +193,7 @@
           <figcaption><b>Figure {{ block.number }}.</b> {{ block.caption }}</figcaption>
         </figure>
       {% elif block.kind == 'list' %}
-        <ul class="tight">{% for item in block.items %}<li>{{ item|safe }}</li>{% endfor %}</ul>
+        <ul class="tight">{% for item in block.entries %}<li>{{ item|safe }}</li>{% endfor %}</ul>
       {% endif %}
     {% endfor %}
   </section>

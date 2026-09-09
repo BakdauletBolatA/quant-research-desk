@@ -247,6 +247,26 @@ def _christoffersen(hits: np.ndarray) -> tuple[float, float]:
     return float(lr), float(1.0 - stats.chi2.cdf(lr, df=1))
 
 
+def rolling_var_forecast(
+    returns: pd.Series,
+    confidence: float = 0.99,
+    method: str = "filtered_historical",
+    window: int = 500,
+    lam: float = 0.94,
+) -> pd.Series:
+    """The out-of-sample VaR path the backtest actually evaluates.
+
+    Element *t* is the forecast made with data up to *t-1*, so plotting it
+    against realised returns shows exactly what the risk manager saw.
+    """
+    r = _as_series(returns)
+    values = r.to_numpy()
+    forecasts = np.full(len(values), np.nan)
+    for t in range(window, len(values)):
+        forecasts[t] = value_at_risk(pd.Series(values[t - window : t]), confidence, method, lam)
+    return pd.Series(forecasts, index=r.index, name=f"var_{method}").dropna()
+
+
 def var_backtest(
     returns: pd.Series,
     confidence: float = 0.99,
