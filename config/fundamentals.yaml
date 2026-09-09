@@ -27,6 +27,13 @@ market:
 
 # ---------------------------------------------------------------------------
 # FCFF discounted cash-flow inputs (non-financials only)
+#
+# terminal_roic is the analyst's view of the return on incremental capital in
+# steady state. It is the single most under-specified input in a junior DCF:
+# the lazy default (ROIC = WACC) asserts that every franchise competes its
+# returns away to zero economic profit, which values Apple's ecosystem and a
+# commodity refiner identically. The values below fade materially from each
+# company's *current* ROIC toward the cost of capital without collapsing to it.
 # ---------------------------------------------------------------------------
 dcf:
   AAPL:
@@ -45,6 +52,7 @@ dcf:
     revenue_growth: [0.070, 0.060, 0.055, 0.050, 0.045]
     ebit_margin:    [0.306, 0.308, 0.310, 0.310, 0.310]
     terminal_growth: 0.030
+    terminal_roic: 0.35
   MSFT:
     fiscal_year: "FY2025"
     revenue: 281000
@@ -61,6 +69,7 @@ dcf:
     revenue_growth: [0.140, 0.125, 0.110, 0.095, 0.080]
     ebit_margin:    [0.455, 0.458, 0.460, 0.460, 0.460]
     terminal_growth: 0.030
+    terminal_roic: 0.25
   NVDA:
     fiscal_year: "FY2026"
     revenue: 205000
@@ -77,6 +86,7 @@ dcf:
     revenue_growth: [0.320, 0.220, 0.150, 0.100, 0.070]
     ebit_margin:    [0.620, 0.605, 0.590, 0.575, 0.560]
     terminal_growth: 0.030
+    terminal_roic: 0.3
   GOOGL:
     fiscal_year: "FY2025"
     revenue: 400000
@@ -93,6 +103,7 @@ dcf:
     revenue_growth: [0.130, 0.115, 0.100, 0.085, 0.070]
     ebit_margin:    [0.325, 0.330, 0.335, 0.335, 0.335]
     terminal_growth: 0.030
+    terminal_roic: 0.22
   JNJ:
     fiscal_year: "FY2025"
     revenue: 92000
@@ -109,6 +120,7 @@ dcf:
     revenue_growth: [0.040, 0.040, 0.035, 0.035, 0.030]
     ebit_margin:    [0.265, 0.268, 0.270, 0.270, 0.270]
     terminal_growth: 0.025
+    terminal_roic: 0.18
   PG:
     fiscal_year: "FY2025"
     revenue: 84500
@@ -125,6 +137,7 @@ dcf:
     revenue_growth: [0.030, 0.030, 0.030, 0.028, 0.025]
     ebit_margin:    [0.236, 0.238, 0.240, 0.240, 0.240]
     terminal_growth: 0.023
+    terminal_roic: 0.2
   XOM:
     fiscal_year: "FY2025"
     revenue: 340000
@@ -141,6 +154,7 @@ dcf:
     revenue_growth: [0.020, 0.020, 0.015, 0.015, 0.010]
     ebit_margin:    [0.098, 0.100, 0.100, 0.100, 0.100]
     terminal_growth: 0.020
+    terminal_roic: 0.12
   CAT:
     fiscal_year: "FY2025"
     revenue: 64000
@@ -157,6 +171,7 @@ dcf:
     revenue_growth: [0.045, 0.045, 0.040, 0.035, 0.030]
     ebit_margin:    [0.196, 0.198, 0.200, 0.200, 0.200]
     terminal_growth: 0.025
+    terminal_roic: 0.2
 
 # ---------------------------------------------------------------------------
 # Banks are NOT valued with FCFF.
