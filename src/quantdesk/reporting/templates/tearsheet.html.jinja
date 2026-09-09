@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ meta.title }}</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb;
+    --page: #f4f4f1;
+    --card: #ffffff;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --rule: #c3c2b7;
+    --accent: #2a78d6;
+    --accent-deep: #184f95;
+    --good: #0ca30c;
+    --critical: #d03b3b;
+    --warning: #fab219;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px 96px; }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    background: linear-gradient(160deg, #0d2440 0%, #123a68 55%, #184f95 100%);
+    color: #fff; padding: 52px 0 44px; margin-bottom: 40px;
+  }
+  header.masthead .wrap { padding-bottom: 0; }
+  .eyebrow {
+    font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase;
+    color: #9ec5f4; font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 40px; line-height: 1.12; margin: 0 0 14px; font-weight: 700; letter-spacing: -.02em; }
+  .masthead p.lede { font-size: 17px; color: #cde2fb; margin: 0 0 26px; max-width: 74ch; }
+  .byline {
+    display: flex; flex-wrap: wrap; gap: 10px 30px; font-size: 13px; color: #b7d3f6;
+    border-top: 1px solid rgba(255,255,255,.16); padding-top: 18px;
+  }
+  .byline b { color: #fff; font-weight: 600; }
+
+  /* ---------- headline stats ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); gap: 14px; margin: -76px 0 44px; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--grid); border-radius: var(--radius);
+    padding: 18px 18px 16px; box-shadow: 0 6px 22px rgba(11,11,11,.07);
+  }
+  .kpi .label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kpi .value { font-size: 27px; font-weight: 700; letter-spacing: -.015em; margin-top: 8px; line-height: 1.15; }
+  .kpi .foot { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+  .kpi.up .value { color: var(--accent-deep); }
+  .kpi.down .value { color: var(--critical); }
+
+  /* ---------- sections ---------- */
+  section { margin: 0 0 56px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 8px; }
+  .sec-num { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 700; }
+  h2 { font-size: 25px; margin: 0; font-weight: 700; letter-spacing: -.015em; }
+  h3 { font-size: 17px; margin: 34px 0 10px; font-weight: 700; }
+  .sec-sub { color: var(--ink-2); font-size: 15px; margin: 12px 0 22px; max-width: 82ch; }
+  p { margin: 0 0 14px; max-width: 88ch; }
+  .card {
+    background: var(--card); border: 1px solid var(--grid); border-radius: var(--radius);
+    padding: 22px 24px; margin: 20px 0;
+  }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    border-left: 4px solid var(--accent); background: #f2f7fe; border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 20px 0; font-size: 14.5px;
+  }
+  .callout.finding { border-left-color: var(--good); background: #f1faf1; }
+  .callout.caveat  { border-left-color: var(--warning); background: #fdf8ec; }
+  .callout .tag {
+    display: inline-block; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    font-weight: 800; color: var(--accent); margin-bottom: 6px;
+  }
+  .callout.finding .tag { color: #0a7a0a; }
+  .callout.caveat  .tag { color: #9a6c05; }
+
+  /* ---------- tables ---------- */
+  .table-scroll { overflow-x: auto; margin: 18px 0; border: 1px solid var(--grid); border-radius: var(--radius); background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  thead th {
+    background: #f4f4f1; color: var(--ink-2); text-align: right; font-weight: 700;
+    padding: 11px 14px; border-bottom: 1.5px solid var(--rule); white-space: nowrap; font-size: 12.5px;
+  }
+  thead th:first-child { text-align: left; }
+  tbody td { padding: 9px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  tbody th { padding: 9px 14px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: none; }
+  tbody tr:hover td, tbody tr:hover th { background: #f7f9fc; }
+  .pos { color: var(--accent-deep); font-weight: 600; }
+  .neg { color: var(--critical); font-weight: 600; }
+  .tag-buy  { color: #0a7a0a; font-weight: 700; }
+  .tag-sell { color: var(--critical); font-weight: 700; }
+  .tag-hold { color: var(--ink-2); font-weight: 700; }
+
+  /* ---------- figures ---------- */
+  figure { margin: 24px 0; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--grid); border-radius: var(--radius); background: var(--surface); }
+  figcaption { font-size: 12.5px; color: var(--muted); margin-top: 9px; }
+  figcaption b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- misc ---------- */
+  ul.tight { margin: 0 0 16px; padding-left: 22px; }
+  ul.tight li { margin-bottom: 7px; max-width: 86ch; }
+  code { font-family: var(--mono); font-size: 12.5px; background: #f0efec; padding: 1px 5px; border-radius: 4px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px; }
+  footer.report-foot { border-top: 1px solid var(--rule); padding-top: 22px; color: var(--muted); font-size: 12.5px; }
+  .toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 22px; margin: 0 0 8px; padding: 0; list-style: none; }
+  .toc a { color: var(--ink-2); text-decoration: none; font-size: 14px; display: block; padding: 5px 0; border-bottom: 1px solid var(--grid); }
+  .toc a:hover { color: var(--accent); }
+  .toc .n { font-family: var(--mono); color: var(--accent); font-size: 12px; margin-right: 8px; }
+  @media print {
+    body { background: #fff; }
+    header.masthead { background: #123a68 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .kpis { margin-top: 24px; }
+    section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">{{ meta.eyebrow }}</div>
+    <h1>{{ meta.title }}</h1>
+    <p class="lede">{{ meta.lede }}</p>
+    <div class="byline">
+      <span><b>{{ meta.author }}</b></span>
+      <span>Data through <b>{{ meta.as_of }}</b></span>
+      <span>Universe <b>{{ meta.n_assets }} names + {{ meta.benchmark }}</b></span>
+      <span>Sample <b>{{ meta.sample }}</b> ({{ meta.n_days }} trading days)</span>
+      <span>Built <b>{{ meta.generated }}</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="kpis">
+    {% for kpi in kpis %}
+    <div class="kpi {{ kpi.direction }}">
+      <div class="label">{{ kpi.label }}</div>
+      <div class="value">{{ kpi.value }}</div>
+      <div class="foot">{{ kpi.foot }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">00</span><h2>What is in this report</h2></div>
+    <ul class="toc">
+      {% for s in sections %}
+      <li><a href="#sec{{ loop.index }}"><span class="n">{{ '%02d'|format(loop.index) }}</span>{{ s.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {% for s in sections %}
+  <section id="sec{{ loop.index }}">
+    <div class="sec-head"><span class="sec-num">{{ '%02d'|format(loop.index) }}</span><h2>{{ s.title }}</h2></div>
+    {% if s.subtitle %}<p class="sec-sub">{{ s.subtitle }}</p>{% endif %}
+    {% for block in s.blocks %}
+      {% if block.kind == 'text' %}
+        <p>{{ block.html|safe }}</p>
+      {% elif block.kind == 'heading' %}
+        <h3>{{ block.text }}</h3>
+      {% elif block.kind == 'callout' %}
+        <div class="callout {{ block.variant }}">
+          <div class="tag">{{ block.tag }}</div>
+          {{ block.html|safe }}
+        </div>
+      {% elif block.kind == 'table' %}
+        {% if block.caption %}<h3>{{ block.caption }}</h3>{% endif %}
+        <div class="table-scroll">{{ block.html|safe }}</div>
+        {% if block.note %}<figcaption>{{ block.note|safe }}</figcaption>{% endif %}
+      {% elif block.kind == 'figure' %}
+        <figure>
+          <img src="{{ block.src }}" alt="{{ block.caption }}">
+          <figcaption><b>Figure {{ block.number }}.</b> {{ block.caption }}</figcaption>
+        </figure>
+      {% elif block.kind == 'list' %}
+        <ul class="tight">{% for item in block.items %}<li>{{ item|safe }}</li>{% endfor %}</ul>
+      {% endif %}
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  <footer class="report-foot">
+    <p><b>Reproducibility.</b> {{ meta.repro }}</p>
+    <p><b>Disclaimer.</b> {{ meta.disclaimer }}</p>
+    <p>{{ meta.footer }}</p>
+  </footer>
+</div>
+</body>
+</html>
