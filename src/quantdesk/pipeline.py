@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -31,6 +32,7 @@ from quantdesk.analytics import (
 from quantdesk.analytics.performance import deflated_sharpe_ratio, sharpe_ratio
 from quantdesk.backtest import combine_returns, run_all, turnover_table
 from quantdesk.config import (
+    DOCS_DIR,
     FIGURES_DIR,
     REPORTS_DIR,
     Config,
@@ -486,6 +488,9 @@ def run_pipeline(cfg: Config | None = None, *, force_download: bool = False) -> 
     )
     logger.info("Workbook written: %s", workbook_path)
 
+    published = _publish_to_docs(report_path, figures)
+    logger.info("Published for GitHub Pages: %s", published)
+
     return PipelineResult(
         panel=panel,
         performance=strategy_performance,
@@ -501,6 +506,28 @@ def run_pipeline(cfg: Config | None = None, *, force_download: bool = False) -> 
         report_html=report_path,
         workbook=workbook_path,
     )
+
+
+def _publish_to_docs(report_path: str, figures: dict[str, str]) -> str:
+    """Mirror the report into ``docs/`` so GitHub Pages serves the live version.
+
+    A copy of a handful of figures goes with it so the README can show them
+    without committing the whole ``reports/`` tree, which is regenerated output.
+    """
+    import shutil
+
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    index = DOCS_DIR / "index.html"
+    shutil.copyfile(report_path, index)
+
+    preview_dir = DOCS_DIR / "figures"
+    preview_dir.mkdir(exist_ok=True)
+    for key in ("equity", "var_models", "frontier", "football", "reverse", "implied_wacc",
+                "correlation", "attribution", "monte_carlo", "weights"):
+        source = figures.get(key)
+        if source:
+            shutil.copyfile(source, preview_dir / Path(source).name)
+    return str(index)
 
 
 # ---------------------------------------------------------------------------

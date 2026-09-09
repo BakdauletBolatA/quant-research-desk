@@ -27,11 +27,13 @@ RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+# Published copy of the report, served by GitHub Pages from /docs on main.
+DOCS_DIR = PROJECT_ROOT / "docs"
 
 
 def ensure_dirs() -> None:
     """Create every directory the pipeline writes to."""
-    for path in (RAW_DIR, PROCESSED_DIR, REPORTS_DIR, FIGURES_DIR):
+    for path in (RAW_DIR, PROCESSED_DIR, REPORTS_DIR, FIGURES_DIR, DOCS_DIR):
         path.mkdir(parents=True, exist_ok=True)
 
 

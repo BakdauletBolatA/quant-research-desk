@@ -21,3 +21,5 @@ reports/*.html
 reports/*.xlsx
 reports/figures/*.png
 !reports/.gitkeep
+
+# docs/ is the published copy of the report and IS tracked on purpose.
