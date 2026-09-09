@@ -239,9 +239,12 @@ def risk_contribution_chart(contributions: pd.DataFrame, path: Path) -> str:
 
     ax.set_xticks(x, assets, rotation=0, fontsize=9)
     ax.yaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
-    ax.set_title("Share of total portfolio risk by holding")
+    ax.set_ylim(0, float(np.nanmax(contributions.to_numpy())) * 1.10)
+    ax.set_title("Share of total portfolio risk by holding", pad=26)
     ax.set_ylabel("Risk contribution")
-    ax.legend(ncols=min(n, 4), loc="upper right")
+    # Legend above the plot: with a 25% concentration cap the tallest bar
+    # reaches the top-right corner, where an in-axes legend would sit on it.
+    ax.legend(ncols=min(n, 4), loc="lower left", bbox_to_anchor=(0.0, 1.01))
     return finish(fig, path, SOURCE_MARKET)
 
 
@@ -449,8 +452,11 @@ def sensitivity_heatmap(grid: pd.DataFrame, path: Path, ticker: str, price: floa
     for spine in ax.spines.values():
         spine.set_visible(False)
 
+    # Ink colour follows the *colour ramp position*, not the value distribution:
+    # a percentile threshold puts light-grey text on mid-ramp cells.
     finite = values[np.isfinite(values)]
-    threshold = float(np.nanpercentile(finite, 55)) if finite.size else 0.0
+    low, high = (float(finite.min()), float(finite.max())) if finite.size else (0.0, 1.0)
+    span = (high - low) or 1.0
     for i in range(grid.shape[0]):
         for j in range(grid.shape[1]):
             value = values[i, j]
@@ -459,7 +465,7 @@ def sensitivity_heatmap(grid: pd.DataFrame, path: Path, ticker: str, price: floa
             above = value > price
             ax.text(j, i, f"{value:,.0f}", ha="center", va="center", fontsize=8.5,
                     fontweight="bold" if above else "normal",
-                    color="#ffffff" if value > threshold else INK_SECONDARY)
+                    color="#ffffff" if (value - low) / span > 0.55 else INK_SECONDARY)
 
     bar = fig.colorbar(image, ax=ax, fraction=0.04, pad=0.02)
     bar.outline.set_visible(False)
