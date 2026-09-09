@@ -212,6 +212,26 @@ Nothing here is investment advice, a price target, or a recommendation.
 
 ---
 
+## Where I would take this next
+
+Each item is a limitation above, turned into work:
+
+- **A GARCH(1,1) filter under the FHS estimator.** Every model in the VaR table still
+  shows some exception clustering; conditional-variance filtering is the standard fix
+  and would let the report claim conditional as well as unconditional coverage.
+- **Point-in-time index membership** from a survivorship-free constituent file, which
+  is the only thing that would make the *absolute* return figures meaningful.
+- **A state-dependent cost model** — spread plus a square-root impact term scaled by
+  realised volatility — so the high-turnover rules are charged what they would
+  actually pay in the quarters they most want to trade.
+- **Fundamentals from filings** via an XBRL pull, replacing the analyst input sheet
+  with an auditable feed and letting the reverse DCF run as a time series rather than
+  a single snapshot.
+- **A second asset class.** The correlation structure of one equity market is the
+  easy case; adding credit or rates is where allocation stops being a formality.
+
+---
+
 ## Tests
 
 207 tests, and each one checks the property that *defines* a component rather than a
