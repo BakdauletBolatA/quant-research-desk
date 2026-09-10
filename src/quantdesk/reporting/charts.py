@@ -159,6 +159,15 @@ def correlation_heatmap(corr: pd.DataFrame, path: Path, title: str | None = None
     return finish(fig, path, SOURCE_MARKET)
 
 
+VAR_METHOD_LABELS = {
+    "historical": "Historical",
+    "gaussian": "Gaussian",
+    "cornish_fisher": "Cornish-Fisher",
+    "ewma": "EWMA (λ=0.94)",
+    "filtered_historical": "Filtered HS",
+}
+
+
 def var_exceptions(
     returns: pd.Series, var_forecast: pd.Series, path: Path, confidence: float, method: str
 ) -> str:
@@ -169,7 +178,7 @@ def var_exceptions(
 
     ax.plot(aligned.index, aligned["r"], color=GRIDLINE, linewidth=0.7, zorder=1)
     ax.plot(aligned.index, -aligned["var"], color=series_color(0), linewidth=1.6, zorder=3,
-            label=f"{confidence:.0%} VaR forecast ({method})")
+            label=f"{confidence:.0%} VaR forecast — {VAR_METHOD_LABELS.get(method, method)}")
     ax.scatter(breaches.index, breaches["r"], s=26, color=STATUS["critical"], zorder=4,
                edgecolor="#ffffff", linewidth=0.6,
                label=f"Exceptions: {len(breaches)} of {len(aligned)} "
@@ -182,15 +191,6 @@ def var_exceptions(
     ax.legend(loc="lower left", ncols=2)
     ax.margins(x=0.01)
     return finish(fig, path, SOURCE_MARKET)
-
-
-VAR_METHOD_LABELS = {
-    "historical": "Historical",
-    "gaussian": "Gaussian",
-    "cornish_fisher": "Cornish-Fisher",
-    "ewma": "EWMA (λ=0.94)",
-    "filtered_historical": "Filtered HS",
-}
 
 
 def var_model_comparison(table: pd.DataFrame, path: Path, expected_rate: float) -> str:
